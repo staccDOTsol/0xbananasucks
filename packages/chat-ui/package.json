@@ -17,8 +17,8 @@
     "dev": "NODE_OPTIONS='--inspect' next dev",
     "watch": "tsc --watch --project tsconfig-build.json",
     "build-lib": "tsc --project tsconfig-build.json",
-    "build": "rm -rf node_modules && mv nmold node_modules && yarn clean && next build && tsc --project tsconfig-build.json",
-    "start": "next start",
+    "build": "echo blah",
+    "start": "yarn serve -d out",
     "lint": "next lint",
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
     "precommit": "git-format-staged -f 'prettier --ignore-unknown --stdin --stdin-filepath \"{}\"' ."
@@ -54,6 +54,7 @@
     "react-dom": "^17.0.2",
     "react-hook-form": "^7.25.1",
     "react-hot-toast": "^2.2.0",
+    "serve": "^13.0.2",
     "yarn": "^1.22.18",
     "yup": "^0.32.11"
   },

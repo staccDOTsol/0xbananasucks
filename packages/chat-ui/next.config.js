@@ -18,16 +18,16 @@ module.exports = {
     config.resolve.alias = {
       ...config.resolve.alias,
       "@solana/wallet-adapter-base": path.resolve(
-        "./node_modules/@solana/wallet-adapter-base"
+        "../../node_modules/@solana/wallet-adapter-base"
       ),
       "@solana/wallet-adapter-react": path.resolve(
-        "./node_modules/@solana/wallet-adapter-react"
+        "../../node_modules/@solana/wallet-adapter-react"
       ),
-      "@chakra-ui/react": path.resolve("./node_modules/@chakra-ui/react"),
+      "@chakra-ui/react": path.resolve("../../node_modules/@chakra-ui/react"),
       "@chakra-ui/color-mode": path.resolve(
-        "./node_modules/@chakra-ui/color-mode"
+        "../../node_modules/@chakra-ui/color-mode"
       ),
-      "react-hot-toast": path.resolve("./node_modules/react-hot-toast"),
+      "react-hot-toast": path.resolve("../../node_modules/react-hot-toast"),
     };
     return config;
   },
