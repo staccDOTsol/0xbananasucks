@@ -6675,6 +6675,84 @@
   resolved "https://registry.yarnpkg.com/@stablelib/wipe/-/wipe-1.0.1.tgz#d21401f1d59ade56a62e139462a97f104ed19a36"
   integrity sha512-WfqfX/eXGiAd3RJe4VU2snh/ZPwtSjLG4ynQ/vYzvghTh7dHFcI1wl+nrkWG6lGhukOxOsUHfv8dUXr58D0ayg==
 
+"@strata-foundation/marketplace-sdk@^3.7.0":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@strata-foundation/marketplace-sdk/-/marketplace-sdk-3.7.0.tgz#218b6a764148fb2056b17ee6105223fb9ccbd9e7"
+  integrity sha512-Wu2TDy4OGTVHYRGq6R0Jg+V0oTFSAaDNjJM6zMSQUKjMM1TULAMdmzkh9mgF6kl2XELaDe3KdWrFIn8gTw8F+w==
+  dependencies:
+    "@project-serum/anchor" "^0.22.0"
+    "@solana/web3.js" "^1.32.0"
+    "@strata-foundation/spl-token-bonding" "^3.7.0"
+    "@strata-foundation/spl-token-collective" "^3.7.0"
+    "@strata-foundation/spl-utils" "^3.7.0"
+    bn.js "^5.2.0"
+    copyfiles "^2.4.1"
+
+"@strata-foundation/react@^3.7.0":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@strata-foundation/react/-/react-3.7.0.tgz#8060f96092a3ba2fc61b724e3d3be38b469a7369"
+  integrity sha512-F03s4FJA5ZCVMCM6gA/SCdjIwX/1LS7gXNpT8uc6OCXhvgpBwM9dA+OtQTl239CNIQiLzIdpivuR9lfBA7K8Aw==
+  dependencies:
+    "@chakra-ui/react" "^1.7.2"
+    "@emotion/react" "^11.6.0"
+    "@emotion/styled" "^11.6.0"
+    "@hookform/resolvers" "^2.8.3"
+    "@project-serum/anchor" "^0.22.0"
+    "@project-serum/serum" "^0.13.61"
+    "@solana/spl-governance" "^0.0.27"
+    "@solana/spl-token" "^0.1.8"
+    "@solana/spl-token-registry" "^0.2.2130"
+    "@solana/wallet-adapter-base" "^0.9.4"
+    "@solana/wallet-adapter-react" "^0.15.4"
+    "@solana/wallet-adapter-wallets" "^0.16.1"
+    "@solana/web3.js" "^1.32.0"
+    "@strata-foundation/marketplace-sdk" "^3.7.0"
+    "@strata-foundation/spl-token-bonding" "^3.7.0"
+    "@strata-foundation/spl-token-collective" "^3.7.0"
+    "@strata-foundation/spl-utils" "^3.7.0"
+    "@toruslabs/solana-embed" "0.0.9"
+    "@types/lru-cache" "^7.6.1"
+    axios "^0.25.0"
+    borsh "^0.4.0"
+    buffer "^6.0.3"
+    dotenv "^10.0.0"
+    eventemitter3 "^4.0.7"
+    framer-motion "^5.3.0"
+    fuse.js "^6.5.3"
+    lru-cache "^7.8.1"
+    path "^0.12.7"
+    query-string "^7.1.1"
+    react-async-hook "^4.0.0"
+    react-hook-form "^7.19.5"
+    react-hot-toast "^2.1.1"
+    react-icons "^4.3.1"
+    yup "^0.32.11"
+
+"@strata-foundation/spl-token-bonding@^3.7.0":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@strata-foundation/spl-token-bonding/-/spl-token-bonding-3.7.0.tgz#bc941513d1fc558b614c225e254c26ce4a37365e"
+  integrity sha512-e3S5huWtHKFDuHO/rncXJVJdDgEyjk+HpXXaeuH/fk8ZuikCTBKf5ajaCHTsL19fbj4BdZGice3QaN37nu+mVw==
+  dependencies:
+    "@project-serum/anchor" "^0.22.0"
+    "@solana/web3.js" "^1.32.0"
+    "@strata-foundation/spl-utils" "^3.7.0"
+    bn.js "^5.2.0"
+    copyfiles "^2.4.1"
+
+"@strata-foundation/spl-token-collective@^3.7.0":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@strata-foundation/spl-token-collective/-/spl-token-collective-3.7.0.tgz#32bb4ca78dc62b41299ffd0f5a233e800927a8f5"
+  integrity sha512-UyjVszJQRyPZ8BVTg0gxDUMnYn0f4QiNviII5IIe9v5yFe2i+PzT6S3XpNLog2I46lhEh3PNrlBLhH4FSoJxBA==
+  dependencies:
+    "@bonfida/spl-name-service" "^0.1.22"
+    "@project-serum/anchor" "^0.22.0"
+    "@solana/web3.js" "^1.32.0"
+    "@strata-foundation/spl-token-bonding" "^3.7.0"
+    "@strata-foundation/spl-token-staking" "^3.2.6"
+    "@strata-foundation/spl-utils" "^3.7.0"
+    bn.js "^5.2.0"
+    copyfiles "^2.4.1"
+
 "@strata-foundation/spl-token-staking@^3.2.6":
   version "3.2.6"
   resolved "https://registry.yarnpkg.com/@strata-foundation/spl-token-staking/-/spl-token-staking-3.2.6.tgz#fcf0e0e12733452496482c84d2d78f88797489c6"
@@ -6684,6 +6762,21 @@
     "@strata-foundation/spl-utils" "^3.2.6"
     bn.js "^5.2.0"
     semver "^7.3.5"
+
+"@strata-foundation/spl-utils@^3.7.0":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@strata-foundation/spl-utils/-/spl-utils-3.7.0.tgz#6b6addb5ebf9bc78abb0271583e8254b9b484c1e"
+  integrity sha512-qC6HKJugjGk48qLN7Qy2TYBn6hFQVYfbHhgtTxfQsB+hi846GaMu488JiZScWiyRfgcwUr2+KVgMinFHgT/SEQ==
+  dependencies:
+    "@metaplex-foundation/mpl-token-metadata" "^1.1.0"
+    "@metaplex/arweave-cost" "1.0.4"
+    "@metaplex/js" "^4.3.0"
+    "@solana/spl-name-service" "^0.1.3"
+    "@solana/web3.js" "^1.32.0"
+    bs58 "^4.0.1"
+    localstorage-memory "^1.0.3"
+    superstruct "0.14.2"
+    tweetnacl "^1.0.3"
 
 "@svgr/babel-plugin-add-jsx-attribute@^5.4.0":
   version "5.4.0"

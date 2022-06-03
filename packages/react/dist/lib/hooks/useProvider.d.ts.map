@@ -1,0 +1,1 @@
+{"version":3,"file":"useProvider.d.ts","sourceRoot":"","sources":["../../../src/hooks/useProvider.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,QAAQ,EAAE,MAAM,uBAAuB,CAAC;AAIjD;;;;GAIG;AACH,wBAAgB,WAAW,IAAI;IAC7B,QAAQ,CAAC,EAAE,QAAQ,CAAC;IACpB,gBAAgB,EAAE,OAAO,CAAC;CAC3B,CAEA"}

@@ -1,0 +1,1 @@
+{"version":3,"file":"useProfileKey.d.ts","sourceRoot":"","sources":["../../../src/hooks/useProfileKey.tsx"],"names":[],"mappings":"AAAA,OAAO,EAAE,SAAS,EAAE,MAAM,iBAAiB,CAAC;AAI5C,wBAAgB,aAAa,CAAC,IAAI,EAAE;IAClC,MAAM,CAAC,EAAE,SAAS,CAAC;IACnB,QAAQ,CAAC,EAAE,MAAM,CAAC;CACnB,GAAG;IAAE,OAAO,EAAE,OAAO,CAAC;IAAC,GAAG,EAAE,SAAS,GAAG,SAAS,CAAA;CAAE,CAcnD"}
