@@ -124,8 +124,8 @@ export function CreateProfileModal() {
                     <AlertTitle>Local Wallet</AlertTitle>
                     <AlertDescription>
                       Strata Chat is fully decentralized. In order to avoid
-                      asking for approval on every message, we create a wallet stored in your machine's
-                      localStorage that can send messages on your main wallet's
+                      asking for approval on every message, we create a wallet stored in your machines
+                      localStorage that can send messages on your main wallets
                       behalf. Creating a profile will also load this wallet with
                       0.1 Sol to pay for messages (0.000005 SOL each) and file
                       uploads (1 $SHDW per GB)

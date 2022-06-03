@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { BN, IdlAccounts, IdlTypes, Program, Provider } from "@project-serum/anchor";
 import { Commitment, Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
 import {

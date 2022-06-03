@@ -1,4 +1,4 @@
-import { ChatSdk } from "@strata-foundation/chat";
+import { ChatSdk, PostAction } from "@strata-foundation/chat";
 import * as anchor from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
 // @ts-ignore
@@ -7,8 +7,9 @@ import { ChatIDL } from "@strata-foundation/chat";
 import { Program } from "@project-serum/anchor";
 
 const args = process.argv;
-async function run(): Promise<void> {
-  console.log(process.env.ANCHOR_PROVIDER_URL);
+setTimeout(async () => {
+  
+console.log(process.env.ANCHOR_PROVIDER_URL);
   anchor.setProvider(anchor.Provider.env());
   const provider = anchor.getProvider();
 
@@ -23,15 +24,12 @@ async function run(): Promise<void> {
   const chatSdk = new ChatSdk(provider, chat, client);
 
   await chatSdk.initializeChat({
-    identifier: args[2],
-    name: args[3],
-    readPermissionMint: new PublicKey(args[4]),
-    postPermissionMint: new PublicKey(args[4]),
-    imageUrl: args[5]
+    identifier: 'burnit',
+    name: 'burnit',
+    readPermissionMint: new PublicKey("openDKyuDPS6Ak1BuD3JtvkQGV3tzCxjpHUfe1mdC79"),
+    postPermissionMint: new PublicKey("openDKyuDPS6Ak1BuD3JtvkQGV3tzCxjpHUfe1mdC79"),
+    imageUrl: "https://raw.githubusercontent.com/dyor-market/token-list/main/assets/mainnet/D3gRmoveMFa8e3ziw5XCwCByHKiSk76T4fi62GXNYXHi/logo.png",
+    postPermissionAction: PostAction.Burn,
+    postPermissionAmount: 1.38
   });
-}
-
-run().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+}, 1);
