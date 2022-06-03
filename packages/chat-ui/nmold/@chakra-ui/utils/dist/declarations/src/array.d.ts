@@ -15,7 +15,7 @@ export declare function removeItem<T>(array: T[], item: T): T[];
  */
 export declare function getNextIndex(currentIndex: number, length: number, step?: number, loop?: boolean): number;
 /**
- * Get's the previous index based on the current index.
+ * Gets the previous index based on the current index.
  * Mostly used for keyboard navigation.
  *
  * @param index - the current index

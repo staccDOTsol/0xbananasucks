@@ -3,8 +3,9 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 var React = require('react');
-var utils = require('@chakra-ui/utils');
+var useAnimationState_dist_chakraUiHooksUseAnimationState = require('./use-animation-state-00b3dc7b.cjs.prod.js');
 var copy = require('copy-to-clipboard');
+var utils = require('@chakra-ui/utils');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { 'default': e }; }
 
@@ -43,61 +44,22 @@ function useBoolean(initialState) {
       value = _useState[0],
       setValue = _useState[1];
 
-  var on = React.useCallback(function () {
-    setValue(true);
+  var callbacks = React.useMemo(function () {
+    return {
+      on: function on() {
+        return setValue(true);
+      },
+      off: function off() {
+        return setValue(false);
+      },
+      toggle: function toggle() {
+        return setValue(function (prev) {
+          return !prev;
+        });
+      }
+    };
   }, []);
-  var off = React.useCallback(function () {
-    setValue(false);
-  }, []);
-  var toggle = React.useCallback(function () {
-    setValue(function (prev) {
-      return !prev;
-    });
-  }, []);
-  return [value, {
-    on: on,
-    off: off,
-    toggle: toggle
-  }];
-}
-
-/**
- * useSafeLayoutEffect enables us to safely call `useLayoutEffect` on the browser
- * (for SSR reasons)
- *
- * React currently throws a warning when using useLayoutEffect on the server.
- * To get around it, we can conditionally useEffect on the server (no-op) and
- * useLayoutEffect in the browser.
- *
- * @see https://gist.github.com/gaearon/e7d97cdf38a2907924ea12e4ebdf3c85
- */
-
-var useSafeLayoutEffect = utils.isBrowser ? React__namespace.useLayoutEffect : React__namespace.useEffect;
-
-/**
- * React hook to persist any value between renders,
- * but keeps it up-to-date if it changes.
- *
- * @param value the value or function to persist
- */
-
-function useCallbackRef(fn, deps) {
-  if (deps === void 0) {
-    deps = [];
-  }
-
-  var ref = React__namespace.useRef(fn);
-  useSafeLayoutEffect(function () {
-    ref.current = fn;
-  }); // eslint-disable-next-line react-hooks/exhaustive-deps
-
-  return React__namespace.useCallback(function () {
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    return ref.current == null ? void 0 : ref.current.apply(ref, args);
-  }, deps);
+  return [value, callbacks];
 }
 
 function _objectWithoutPropertiesLoose(source, excluded) {
@@ -172,11 +134,13 @@ function useClipboard(text, optionsOrTimeout) {
  * Creates a constant value over the lifecycle of a component.
  *
  * Even if `useMemo` is provided an empty array as its final argument, it doesn't offer
- * a guarantee that it won't re-run for performance reasons later on. By using `useConstant`
- * you can ensure that initialisers don't execute twice or more.
+ * a guarantee that it won't re-run for performance reasons later on. By using `useConst`
+ * you can ensure that initializers don't execute twice or more.
  */
-
 function useConst(init) {
+  // Use useRef to store the value because it's the least expensive built-in
+  // hook that works here. We could also use `useState` but that's more
+  // expensive internally due to reducer handling which we don't need.
   var ref = React.useRef(null);
 
   if (ref.current === null) {
@@ -204,8 +168,8 @@ function useControllableState(props) {
       shouldUpdate = _props$shouldUpdate === void 0 ? function (prev, next) {
     return prev !== next;
   } : _props$shouldUpdate;
-  var onChangeProp = useCallbackRef(onChange);
-  var shouldUpdateProp = useCallbackRef(shouldUpdate);
+  var onChangeProp = useAnimationState_dist_chakraUiHooksUseAnimationState.useCallbackRef(onChange);
+  var shouldUpdateProp = useAnimationState_dist_chakraUiHooksUseAnimationState.useCallbackRef(shouldUpdate);
 
   var _React$useState = React__namespace.useState(defaultValue),
       valueState = _React$useState[0],
@@ -230,7 +194,7 @@ function useControllableState(props) {
 }
 
 /**
- * Reack hook to measure a component's dimensions
+ * React hook to measure a component's dimensions
  *
  * @param ref ref of the component to measure
  * @param observe if `true`, resize and scroll observers will be turned on
@@ -242,7 +206,7 @@ function useDimensions(ref, observe) {
       setDimensions = _React$useState[1];
 
   var rafId = React__namespace.useRef();
-  useSafeLayoutEffect(function () {
+  useAnimationState_dist_chakraUiHooksUseAnimationState.useSafeLayoutEffect(function () {
     if (!ref.current) return undefined;
     var node = ref.current;
 
@@ -293,34 +257,14 @@ function _extends() {
 }
 
 // This implementation is heavily inspired by react-aria's implementation
-var defaultIdContext = {
-  prefix: Math.round(Math.random() * 10000000000),
-  current: 0
-};
-var IdContext = /*#__PURE__*/React__namespace.createContext(defaultIdContext);
-var IdProvider = /*#__PURE__*/React__namespace.memo(function (_ref) {
-  var children = _ref.children;
-  var currentContext = React__namespace.useContext(IdContext);
-  var isRoot = currentContext === defaultIdContext;
-  var context = React__namespace.useMemo(function () {
-    return {
-      prefix: isRoot ? 0 : ++currentContext.prefix,
-      current: 0
-    };
-  }, [isRoot, currentContext]);
-  return /*#__PURE__*/React__namespace.createElement(IdContext.Provider, {
-    value: context
-  }, children);
-});
 function useId(idProp, prefix) {
-  var context = React__namespace.useContext(IdContext);
+  var id = React__namespace.useId();
   return React__namespace.useMemo(function () {
-    return idProp || [prefix, context.prefix, ++context.current].filter(Boolean).join("-");
-  }, // eslint-disable-next-line react-hooks/exhaustive-deps
-  [idProp, prefix]);
+    return idProp || [prefix, id].filter(Boolean).join("-");
+  }, [idProp, prefix, id]);
 }
 /**
- * Reack hook to generate ids for use in compound components
+ * React hook to generate ids for use in compound components
  *
  * @param idProp the external id passed from the user
  * @param prefixes array of prefixes to use
@@ -348,7 +292,7 @@ function useIds(idProp) {
   }, [id, prefixes]);
 }
 /**
- * Used to generate an id, and after render, check if that id is rendered so we know
+ * Used to generate an id, and after render, check if that id is rendered, so we know
  * if we can use it in places such as `aria-labelledby`.
  *
  * @param partId - The unique id for the component part
@@ -382,8 +326,8 @@ function useDisclosure(props) {
       onOpenProp = _props.onOpen,
       isOpenProp = _props.isOpen,
       idProp = _props.id;
-  var onOpenPropCallbackRef = useCallbackRef(onOpenProp);
-  var onClosePropCallbackRef = useCallbackRef(onCloseProp);
+  var onOpenPropCallbackRef = useAnimationState_dist_chakraUiHooksUseAnimationState.useCallbackRef(onOpenProp);
+  var onClosePropCallbackRef = useAnimationState_dist_chakraUiHooksUseAnimationState.useCallbackRef(onCloseProp);
 
   var _React$useState = React__namespace.useState(props.defaultIsOpen || false),
       isOpenState = _React$useState[0],
@@ -424,7 +368,7 @@ function useDisclosure(props) {
       }
 
       return _extends({}, props, {
-        "aria-expanded": "true",
+        "aria-expanded": isOpen,
         "aria-controls": id,
         onClick: utils.callAllHandlers(props.onClick, onToggle)
       });
@@ -439,58 +383,6 @@ function useDisclosure(props) {
         id: id
       });
     }
-  };
-}
-
-/**
- * React hook for performant `useCallbacks`
- *
- * @see https://github.com/facebook/react/issues/14099#issuecomment-440013892
- *
- * @deprecated Use `useCallbackRef` instead. `useEventCallback` will be removed
- * in a future version.
- */
-
-function useEventCallback(callback) {
-  var ref = React__namespace.useRef(callback);
-  useSafeLayoutEffect(function () {
-    ref.current = callback;
-  });
-  return React__namespace.useCallback(function (event) {
-    for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      args[_key - 1] = arguments[_key];
-    }
-
-    return ref.current.apply(ref, [event].concat(args));
-  }, []);
-}
-
-/**
- * React hook to manage browser event listeners
- *
- * @param event the event name
- * @param handler the event handler function to execute
- * @param doc the dom environment to execute against (defaults to `document`)
- * @param options the event listener options
- *
- * @internal
- */
-function useEventListener(event, handler, env, options) {
-  var listener = useCallbackRef(handler);
-  React__namespace.useEffect(function () {
-    var _runIfFn;
-
-    var node = (_runIfFn = utils.runIfFn(env)) != null ? _runIfFn : document;
-    node.addEventListener(event, listener, options);
-    return function () {
-      node.removeEventListener(event, listener, options);
-    };
-  }, [event, env, options, listener]);
-  return function () {
-    var _runIfFn2;
-
-    var node = (_runIfFn2 = utils.runIfFn(env)) != null ? _runIfFn2 : document;
-    node.removeEventListener(event, listener, options);
   };
 }
 
@@ -533,16 +425,24 @@ function useEventListenerMap() {
  */
 
 var useUpdateEffect = function useUpdateEffect(effect, deps) {
-  var mounted = React__namespace.useRef(false);
+  var renderCycleRef = React__namespace.useRef(false);
+  var effectCycleRef = React__namespace.useRef(false);
   React__namespace.useEffect(function () {
-    if (mounted.current) {
+    var isMounted = renderCycleRef.current;
+    var shouldRun = isMounted && effectCycleRef.current;
+
+    if (shouldRun) {
       return effect();
     }
 
-    mounted.current = true;
-    return undefined; // eslint-disable-next-line react-hooks/exhaustive-deps
+    effectCycleRef.current = true; // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
-  return mounted.current;
+  React__namespace.useEffect(function () {
+    renderCycleRef.current = true;
+    return function () {
+      renderCycleRef.current = false;
+    };
+  }, []);
 };
 
 /**
@@ -616,7 +516,7 @@ function useFocusOnHide(containerRef, options) {
  */
 
 function usePointerEvent(env, eventName, handler, options) {
-  return useEventListener(utils.getPointerEventName(eventName), utils.wrapPointerEventHandler(handler, eventName === "pointerdown"), env, options);
+  return useAnimationState_dist_chakraUiHooksUseAnimationState.useEventListener(utils.getPointerEventName(eventName), utils.wrapPointerEventHandler(handler, eventName === "pointerdown"), env, options);
 }
 
 /**
@@ -624,7 +524,7 @@ function usePointerEvent(env, eventName, handler, options) {
  * across all browsers.
  *
  * It ensures that elements receives focus on pointer down if
- * it's not the active active element.
+ * it's not the active element.
  *
  * @internal
  */
@@ -693,7 +593,7 @@ function useFocusOnShow(target, options) {
   useUpdateEffect(function () {
     onFocus();
   }, [onFocus]);
-  useEventListener("transitionend", onFocus, element);
+  useAnimationState_dist_chakraUiHooksUseAnimationState.useEventListener("transitionend", onFocus, element);
 }
 
 function useUnmountEffect(fn, deps) {
@@ -734,7 +634,7 @@ function useForceUpdate() {
  */
 
 function useInterval(callback, delay) {
-  var fn = useCallbackRef(callback);
+  var fn = useAnimationState_dist_chakraUiHooksUseAnimationState.useCallbackRef(callback);
   React__namespace.useEffect(function () {
     var intervalId = null;
 
@@ -816,17 +716,13 @@ function useMergeRefs() {
   }, refs);
 }
 
-/**
- * @deprecated `useMouseDownRef` will be removed in a future version.
- */
-
 function useMouseDownRef(shouldListen) {
   if (shouldListen === void 0) {
     shouldListen = true;
   }
 
   var mouseDownRef = React__namespace["default"].useRef();
-  useEventListener("mousedown", function (event) {
+  useAnimationState_dist_chakraUiHooksUseAnimationState.useEventListener("mousedown", function (event) {
     if (shouldListen) {
       mouseDownRef.current = event.target;
     }
@@ -835,7 +731,7 @@ function useMouseDownRef(shouldListen) {
 }
 
 /**
- * Example, used in components like Dialogs and Popovers so they can close
+ * Example, used in components like Dialogs and Popovers, so they can close
  * when a user clicks outside them.
  */
 function useOutsideClick(props) {
@@ -843,7 +739,7 @@ function useOutsideClick(props) {
       handler = props.handler,
       _props$enabled = props.enabled,
       enabled = _props$enabled === void 0 ? true : _props$enabled;
-  var savedHandler = useCallbackRef(handler);
+  var savedHandler = useAnimationState_dist_chakraUiHooksUseAnimationState.useCallbackRef(handler);
   var stateRef = React.useRef({
     isPointerDown: false,
     ignoreEmulatedMouseEvents: false
@@ -901,7 +797,7 @@ function isValidEvent(event, ref) {
 
   if (target) {
     var doc = utils.getOwnerDocument(target);
-    if (!doc.body.contains(target)) return false;
+    if (!doc.contains(target)) return false;
   }
 
   return !((_ref$current = ref.current) != null && _ref$current.contains(target));
@@ -1042,7 +938,7 @@ function useShortcut(props) {
  */
 
 function useTimeout(callback, delay) {
-  var fn = useCallbackRef(callback);
+  var fn = useAnimationState_dist_chakraUiHooksUseAnimationState.useCallbackRef(callback);
   React__namespace.useEffect(function () {
     if (delay == null) return undefined;
     var timeoutId = null;
@@ -1081,18 +977,18 @@ function useWhyDidYouUpdate(name, props) {
   });
 }
 
-exports.IdProvider = IdProvider;
+exports.useAnimationState = useAnimationState_dist_chakraUiHooksUseAnimationState.useAnimationState;
+exports.useCallbackRef = useAnimationState_dist_chakraUiHooksUseAnimationState.useCallbackRef;
+exports.useEventListener = useAnimationState_dist_chakraUiHooksUseAnimationState.useEventListener;
+exports.useSafeLayoutEffect = useAnimationState_dist_chakraUiHooksUseAnimationState.useSafeLayoutEffect;
 exports.assignRef = assignRef;
 exports.useBoolean = useBoolean;
-exports.useCallbackRef = useCallbackRef;
 exports.useClipboard = useClipboard;
 exports.useConst = useConst;
 exports.useControllableProp = useControllableProp;
 exports.useControllableState = useControllableState;
 exports.useDimensions = useDimensions;
 exports.useDisclosure = useDisclosure;
-exports.useEventCallback = useEventCallback;
-exports.useEventListener = useEventListener;
 exports.useEventListenerMap = useEventListenerMap;
 exports.useFocusEffect = useFocusEffect;
 exports.useFocusOnHide = useFocusOnHide;
@@ -1110,7 +1006,6 @@ exports.useOutsideClick = useOutsideClick;
 exports.usePanGesture = usePanGesture;
 exports.usePointerEvent = usePointerEvent;
 exports.usePrevious = usePrevious;
-exports.useSafeLayoutEffect = useSafeLayoutEffect;
 exports.useShortcut = useShortcut;
 exports.useTimeout = useTimeout;
 exports.useUnmountEffect = useUnmountEffect;

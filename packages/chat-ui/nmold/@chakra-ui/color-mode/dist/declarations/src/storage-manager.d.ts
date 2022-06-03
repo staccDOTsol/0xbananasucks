@@ -1,18 +1,16 @@
 import { ColorMode } from "./color-mode.utils";
-export declare const storageKey = "chakra-ui-color-mode";
+export declare const STORAGE_KEY = "chakra-ui-color-mode";
 declare type MaybeColorMode = ColorMode | undefined;
 export interface StorageManager {
-    get(init?: ColorMode): MaybeColorMode;
-    set(value: ColorMode): void;
     type: "cookie" | "localStorage";
+    ssr?: boolean;
+    get(init?: ColorMode): MaybeColorMode;
+    set(value: ColorMode | "system"): void;
 }
-/**
- * Simple object to handle read-write to localStorage
- */
+export declare function createLocalStorageManager(key: string): StorageManager;
 export declare const localStorageManager: StorageManager;
-/**
- * Simple object to handle read-write to cookies
- */
-export declare const cookieStorageManager: (cookies?: string) => StorageManager;
+export declare function createCookieStorageManager(key: string, cookie?: string): StorageManager;
+export declare const cookieStorageManager: StorageManager;
+export declare const cookieStorageManagerSSR: (cookie: string) => StorageManager;
 export {};
 //# sourceMappingURL=storage-manager.d.ts.map

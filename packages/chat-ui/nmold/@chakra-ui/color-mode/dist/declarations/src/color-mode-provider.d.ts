@@ -6,6 +6,7 @@ export type { ColorMode, ConfigColorMode };
 export interface ColorModeOptions {
     initialColorMode?: ConfigColorMode;
     useSystemColorMode?: boolean;
+    disableTransitionOnChange?: boolean;
 }
 interface ColorModeContextType {
     colorMode: ColorMode;
@@ -17,11 +18,11 @@ export declare const ColorModeContext: React.Context<ColorModeContextType>;
  * React hook that reads from `ColorModeProvider` context
  * Returns the color mode and function to toggle it
  */
-export declare const useColorMode: () => ColorModeContextType;
+export declare function useColorMode(): ColorModeContextType;
 export interface ColorModeProviderProps {
     value?: ColorMode;
     children?: React.ReactNode;
-    options: ColorModeOptions;
+    options?: ColorModeOptions;
     colorModeManager?: StorageManager;
 }
 /**
@@ -35,11 +36,17 @@ export declare namespace ColorModeProvider {
 /**
  * Locks the color mode to `dark`, without any way to change it.
  */
-export declare const DarkMode: React.FC;
+export declare const DarkMode: {
+    (props: React.PropsWithChildren<{}>): JSX.Element;
+    displayName: string;
+};
 /**
  * Locks the color mode to `light` without any way to change it.
  */
-export declare const LightMode: React.FC;
+export declare const LightMode: {
+    (props: React.PropsWithChildren<{}>): JSX.Element;
+    displayName: string;
+};
 /**
  * Change value based on color mode.
  *

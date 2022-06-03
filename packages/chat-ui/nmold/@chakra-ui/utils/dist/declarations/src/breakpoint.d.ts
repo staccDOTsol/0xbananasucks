@@ -1,5 +1,6 @@
 import { Dict } from "./types";
 export declare function px(value: number | string | null): string | null;
+export declare function toMediaQueryString(min: string | null, max?: string): string;
 export declare function analyzeBreakpoints(breakpoints: Dict): {
     keys: Set<string>;
     normalized: string[];
@@ -7,6 +8,7 @@ export declare function analyzeBreakpoints(breakpoints: Dict): {
     asObject: Dict<any>;
     asArray: string[];
     details: {
+        _minW: string;
         breakpoint: string;
         minW: any;
         maxW: any;

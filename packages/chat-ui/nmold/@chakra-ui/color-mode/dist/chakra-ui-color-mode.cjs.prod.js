@@ -2,7 +2,7 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var reactEnv = require('@chakra-ui/react-env');
+var hooks = require('@chakra-ui/hooks');
 var utils = require('@chakra-ui/utils');
 var React = require('react');
 
@@ -48,155 +48,116 @@ var classNames = {
   light: "chakra-ui-light",
   dark: "chakra-ui-dark"
 };
-
-/**
- * SSR: Graceful fallback for the `body` element
- */
-var mockBody = {
-  classList: {
-    add: utils.noop,
-    remove: utils.noop
-  }
-};
-
-var getBody = function getBody(document) {
-  return utils.isBrowser ? document.body : mockBody;
-};
-/**
- * Function to add/remove class from `body` based on color mode
- */
-
-
-function syncBodyClassName(isDark, document) {
-  var body = getBody(document);
-  body.classList.add(isDark ? classNames.dark : classNames.light);
-  body.classList.remove(isDark ? classNames.light : classNames.dark);
-}
-/**
- * Check if JS media query matches the query string passed
- */
-
-function getMediaQuery(query) {
-  var mediaQueryList = window.matchMedia == null ? void 0 : window.matchMedia(query);
-
-  if (!mediaQueryList) {
-    return undefined;
+function getColorModeUtils(options) {
+  if (options === void 0) {
+    options = {};
   }
 
-  return !!mediaQueryList.media === mediaQueryList.matches;
-}
+  var _options = options,
+      _options$preventTrans = _options.preventTransition,
+      preventTransition = _options$preventTrans === void 0 ? true : _options$preventTrans;
+  var utils = {
+    setDataset: function setDataset(value) {
+      var cleanup = preventTransition ? utils.preventTransition() : undefined;
+      document.documentElement.dataset.theme = value;
+      document.documentElement.style.colorScheme = value;
+      cleanup == null ? void 0 : cleanup();
+    },
+    setClassName: function setClassName(dark) {
+      document.body.classList.add(dark ? classNames.dark : classNames.light);
+      document.body.classList.remove(dark ? classNames.light : classNames.dark);
+    },
+    query: function query() {
+      return window.matchMedia("(prefers-color-scheme: dark)");
+    },
+    getSystemTheme: function getSystemTheme(fallback) {
+      var _utils$query$matches;
 
-var queries = {
-  light: "(prefers-color-scheme: light)",
-  dark: "(prefers-color-scheme: dark)"
-};
+      var dark = (_utils$query$matches = utils.query().matches) != null ? _utils$query$matches : fallback === "dark";
+      return dark ? "dark" : "light";
+    },
+    addListener: function addListener(fn) {
+      var mql = utils.query();
 
-function getColorScheme(fallback) {
-  var _getMediaQuery;
+      var listener = function listener(e) {
+        fn(e.matches ? "dark" : "light");
+      };
 
-  var isDark = (_getMediaQuery = getMediaQuery(queries.dark)) != null ? _getMediaQuery : fallback === "dark";
-  return isDark ? "dark" : "light";
-}
-/**
- * Adds system os color mode listener, and run the callback
- * once preference changes
- */
+      mql.addEventListener("change", listener);
+      return function () {
+        return mql.removeEventListener("change", listener);
+      };
+    },
+    preventTransition: function preventTransition() {
+      var css = document.createElement("style");
+      css.appendChild(document.createTextNode("*{-webkit-transition:none!important;-moz-transition:none!important;-o-transition:none!important;-ms-transition:none!important;transition:none!important}"));
+      document.head.appendChild(css);
+      return function () {
 
-function addListener(fn) {
-  if (!("matchMedia" in window)) {
-    return utils.noop;
-  }
+        (function () {
+          return window.getComputedStyle(document.body);
+        })(); // wait for next tick
 
-  var mediaQueryList = window.matchMedia(queries.dark);
 
-  var listener = function listener() {
-    fn(mediaQueryList.matches ? "dark" : "light", true);
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            document.head.removeChild(css);
+          });
+        });
+      };
+    }
   };
-
-  mediaQueryList.addEventListener("change", listener);
-  return function () {
-    mediaQueryList.removeEventListener("change", listener);
-  };
+  return utils;
 }
-var root = {
-  get: function get() {
-    return document.documentElement.style.getPropertyValue("--chakra-ui-color-mode") || document.documentElement.dataset.theme;
-  },
-  set: function set(mode) {
-    if (utils.isBrowser) {
-      /**
-       * @deprecated
-       * The CSS variable `--chakra-ui-color-mode` will be removed in the next major release
-       * Please use the `data-theme` attribute to determine the current color mode
-       */
-      document.documentElement.style.setProperty("--chakra-ui-color-mode", mode);
-      document.documentElement.setAttribute("data-theme", mode);
-    }
-  }
-};
 
-var hasSupport = function hasSupport() {
-  return typeof Storage !== "undefined";
-};
-
-var storageKey = "chakra-ui-color-mode";
-
-/**
- * Simple object to handle read-write to localStorage
- */
-var localStorageManager = {
-  get: function get(init) {
-    if (!hasSupport()) return init;
-
-    try {
-      var _value = localStorage.getItem(storageKey);
-
-      return _value != null ? _value : init;
-    } catch (error) {
-      if (utils.__DEV__) {
-        console.log(error);
-      }
-
-      return init;
-    }
-  },
-  set: function set(value) {
-    if (!hasSupport()) return;
-
-    try {
-      localStorage.setItem(storageKey, value);
-    } catch (error) {
-      if (utils.__DEV__) {
-        console.log(error);
-      }
-    }
-  },
-  type: "localStorage"
-};
-/**
- * Simple object to handle read-write to cookies
- */
-
-var cookieStorageManager = function cookieStorageManager(cookies) {
-  if (cookies === void 0) {
-    cookies = "";
-  }
-
+var STORAGE_KEY = "chakra-ui-color-mode";
+function createLocalStorageManager(key) {
   return {
+    ssr: false,
+    type: "localStorage",
     get: function get(init) {
-      var match = cookies.match(new RegExp("(^| )" + storageKey + "=([^;]+)"));
+      if (!utils.isBrowser) return init;
+      var value;
 
-      if (match) {
-        return match[2];
+      try {
+        value = localStorage.getItem(key) || init;
+      } catch (e) {// no op
       }
 
-      return init;
+      return value || init;
     },
     set: function set(value) {
-      document.cookie = storageKey + "=" + value + "; max-age=31536000; path=/";
-    },
-    type: "cookie"
+      try {
+        localStorage.setItem(key, value);
+      } catch (e) {// no op
+      }
+    }
   };
+}
+var localStorageManager = createLocalStorageManager(STORAGE_KEY);
+
+function parseCookie(cookie, key) {
+  var match = cookie.match(new RegExp("(^| )" + key + "=([^;]+)"));
+  return match == null ? void 0 : match[2];
+}
+
+function createCookieStorageManager(key, cookie) {
+  return {
+    ssr: !!cookie,
+    type: "cookie",
+    get: function get(init) {
+      if (cookie) return parseCookie(cookie, key);
+      if (!utils.isBrowser) return init;
+      return parseCookie(document.cookie, key) || init;
+    },
+    set: function set(value) {
+      document.cookie = key + "=" + value + "; max-age=31536000; path=/";
+    }
+  };
+}
+var cookieStorageManager = createCookieStorageManager(STORAGE_KEY);
+var cookieStorageManagerSSR = function cookieStorageManagerSSR(cookie) {
+  return createCookieStorageManager(STORAGE_KEY, cookie);
 };
 
 var ColorModeContext = /*#__PURE__*/React__namespace.createContext({});
@@ -210,7 +171,7 @@ if (utils.__DEV__) {
  */
 
 
-var useColorMode = function useColorMode() {
+function useColorMode() {
   var context = React__namespace.useContext(ColorModeContext);
 
   if (context === undefined) {
@@ -218,121 +179,96 @@ var useColorMode = function useColorMode() {
   }
 
   return context;
-};
+}
 
+function getTheme(manager, fallback) {
+  return manager.type === "cookie" && manager.ssr ? manager.get(fallback) : fallback;
+}
 /**
  * Provides context for the color mode based on config in `theme`
  * Returns the color mode and function to toggle the color mode
  */
+
+
 function ColorModeProvider(props) {
   var value = props.value,
       children = props.children,
-      _props$options = props.options,
-      useSystemColorMode = _props$options.useSystemColorMode,
+      _props$options = props.options;
+  _props$options = _props$options === void 0 ? {} : _props$options;
+  var useSystemColorMode = _props$options.useSystemColorMode,
       initialColorMode = _props$options.initialColorMode,
+      disableTransitionOnChange = _props$options.disableTransitionOnChange,
       _props$colorModeManag = props.colorModeManager,
       colorModeManager = _props$colorModeManag === void 0 ? localStorageManager : _props$colorModeManag;
   var defaultColorMode = initialColorMode === "dark" ? "dark" : "light";
-  /**
-   * Only attempt to retrieve if we're on the server. Else this will result
-   * in a hydration mismatch warning and partially invalid visuals.
-   *
-   * Else fallback safely to `theme.config.initialColormode` (default light)
-   */
 
-  var _React$useState = React__namespace.useState(colorModeManager.type === "cookie" ? colorModeManager.get(defaultColorMode) : defaultColorMode),
+  var _React$useState = React__namespace.useState(function () {
+    return getTheme(colorModeManager, defaultColorMode);
+  }),
       colorMode = _React$useState[0],
       rawSetColorMode = _React$useState[1];
 
-  var _useEnvironment = reactEnv.useEnvironment(),
-      document = _useEnvironment.document;
+  var _React$useState2 = React__namespace.useState(function () {
+    return getTheme(colorModeManager);
+  }),
+      resolvedColorMode = _React$useState2[0],
+      setResolvedColorMode = _React$useState2[1];
 
-  React__namespace.useEffect(function () {
-    /**
-     * Since we cannot initially retrieve localStorage to due above mentioned
-     * reasons, do so after hydration.
-     *
-     * Priority:
-     * - if `useSystemColorMode` is true system-color will be used as default - initial
-     * colormode is the fallback if system color mode isn't resolved
-     *
-     * - if `--chakra-ui-color-mode` is defined through e.g. `ColorModeScript` this
-     * will be used
-     *
-     * - if `colorModeManager` = `localStorage` and a value is defined for
-     * `chakra-ui-color-mode` this will be used
-     *
-     * - if `initialColorMode` = `system` system-color will be used as default -
-     * initial colormode is the fallback if system color mode isn't resolved
-     *
-     * - if `initialColorMode` = `'light'|'dark'` the corresponding value will be used
-     */
-    if (utils.isBrowser && colorModeManager.type === "localStorage") {
-      var systemColorWithFallback = getColorScheme(defaultColorMode);
+  var _React$useMemo = React__namespace.useMemo(function () {
+    return getColorModeUtils({
+      preventTransition: disableTransitionOnChange
+    });
+  }, [disableTransitionOnChange]),
+      getSystemTheme = _React$useMemo.getSystemTheme,
+      setClassName = _React$useMemo.setClassName,
+      setDataset = _React$useMemo.setDataset,
+      addListener = _React$useMemo.addListener;
 
-      if (useSystemColorMode) {
-        return rawSetColorMode(systemColorWithFallback);
-      }
+  var resolvedValue = initialColorMode === "system" && !colorMode ? resolvedColorMode : colorMode;
+  var setColorMode = React__namespace.useCallback(function (value) {
+    //
+    var resolved = value === "system" ? getSystemTheme() : value;
+    rawSetColorMode(resolved);
+    setClassName(resolved === "dark");
+    setDataset(resolved);
+    colorModeManager.set(resolved);
+  }, [colorModeManager, getSystemTheme, setClassName, setDataset]);
+  hooks.useSafeLayoutEffect(function () {
+    if (initialColorMode === "system") {
+      setResolvedColorMode(getSystemTheme());
+    } // eslint-disable-next-line react-hooks/exhaustive-deps
 
-      var rootGet = root.get();
-      var colorManagerGet = colorModeManager.get();
+  }, []);
+  hooks.useSafeLayoutEffect(function () {
+    var managerValue = colorModeManager.get();
 
-      if (rootGet) {
-        return rawSetColorMode(rootGet);
-      }
-
-      if (colorManagerGet) {
-        return rawSetColorMode(colorManagerGet);
-      }
-
-      if (initialColorMode === "system") {
-        return rawSetColorMode(systemColorWithFallback);
-      }
-
-      return rawSetColorMode(defaultColorMode);
-    }
-  }, [colorModeManager, useSystemColorMode, defaultColorMode, initialColorMode]);
-  React__namespace.useEffect(function () {
-    var isDark = colorMode === "dark";
-    syncBodyClassName(isDark, document);
-    root.set(isDark ? "dark" : "light");
-  }, [colorMode, document]);
-  var setColorMode = React__namespace.useCallback(function (value, isListenerEvent) {
-    if (isListenerEvent === void 0) {
-      isListenerEvent = false;
+    if (managerValue) {
+      setColorMode(managerValue);
+      return;
     }
 
-    if (!isListenerEvent) {
-      colorModeManager.set(value);
-    } else if (colorModeManager.get() && !useSystemColorMode) return;
+    if (initialColorMode === "system") {
+      setColorMode("system");
+      return;
+    }
 
-    rawSetColorMode(value);
-  }, [colorModeManager, useSystemColorMode]);
+    setColorMode(defaultColorMode); //
+  }, [colorModeManager, defaultColorMode, initialColorMode, getSystemTheme]);
   var toggleColorMode = React__namespace.useCallback(function () {
-    setColorMode(colorMode === "light" ? "dark" : "light");
-  }, [colorMode, setColorMode]);
+    setColorMode(resolvedValue === "dark" ? "light" : "dark");
+  }, [resolvedValue, setColorMode]);
   React__namespace.useEffect(function () {
-    var shouldUseSystemListener = useSystemColorMode || initialColorMode === "system";
-    var removeListener;
-
-    if (shouldUseSystemListener) {
-      removeListener = addListener(setColorMode);
-    }
-
-    return function () {
-      if (removeListener && shouldUseSystemListener) {
-        removeListener();
-      }
-    };
-  }, [setColorMode, useSystemColorMode, initialColorMode]); // presence of `value` indicates a controlled context
+    if (!useSystemColorMode) return;
+    return addListener(setColorMode);
+  }, [useSystemColorMode, addListener, setColorMode]); // presence of `value` indicates a controlled context
 
   var context = React__namespace.useMemo(function () {
     return {
-      colorMode: value != null ? value : colorMode,
+      colorMode: value != null ? value : resolvedValue,
       toggleColorMode: value ? utils.noop : toggleColorMode,
       setColorMode: value ? utils.noop : setColorMode
     };
-  }, [colorMode, setColorMode, toggleColorMode, value]);
+  }, [resolvedValue, toggleColorMode, setColorMode, value]);
   return /*#__PURE__*/React__namespace.createElement(ColorModeContext.Provider, {
     value: context
   }, children);
@@ -404,60 +340,61 @@ function useColorModeValue(light, dark) {
   return colorMode === "dark" ? dark : light;
 }
 
-function setScript(initialValue) {
-  var mql = window.matchMedia("(prefers-color-scheme: dark)");
-  var systemPreference = mql.matches ? "dark" : "light";
-  var persistedPreference = systemPreference;
+var VALID_VALUES = new Set(["dark", "light", "system"]);
+/**
+ * runtime safe-guard against invalid color mode values
+ */
 
-  try {
-    persistedPreference = localStorage.getItem("chakra-ui-color-mode");
-  } catch (error) {
-    console.log("Chakra UI: localStorage is not available. Color mode persistence might not work as expected");
-  }
-
-  var colorMode;
-
-  if (persistedPreference) {
-    colorMode = persistedPreference;
-  } else if (initialValue === "system") {
-    colorMode = systemPreference;
-  } else {
-    colorMode = initialValue != null ? initialValue : systemPreference;
-  }
-
-  if (colorMode) {
-    /**
-     * Keep in sync with `root.set() {@file ./color-mode.utils.ts}
-     */
-    document.documentElement.style.setProperty("--chakra-ui-color-mode", colorMode);
-    document.documentElement.setAttribute("data-theme", colorMode);
-  }
+function normalize(initialColorMode) {
+  var value = initialColorMode;
+  if (!VALID_VALUES.has(value)) value = "light";
+  return value;
 }
 
-/**
- * Script to add to the root of your application when using localStorage,
- * to help prevent flash of color mode that can happen during page load.
- */
-var ColorModeScript = function ColorModeScript(props) {
-  var _props$initialColorMo = props.initialColorMode,
-      initialColorMode = _props$initialColorMo === void 0 ? "light" : _props$initialColorMo;
-  var html = "(" + String(setScript) + ")('" + initialColorMode + "')";
+function getScriptSrc(props) {
+  if (props === void 0) {
+    props = {};
+  }
+
+  var _props = props,
+      _props$initialColorMo = _props.initialColorMode,
+      initialColorMode = _props$initialColorMo === void 0 ? "light" : _props$initialColorMo,
+      _props$type = _props.type,
+      type = _props$type === void 0 ? "localStorage" : _props$type,
+      _props$storageKey = _props.storageKey,
+      key = _props$storageKey === void 0 ? "chakra-ui-color-mode" : _props$storageKey; // runtime safe-guard against invalid color mode values
+
+  var init = normalize(initialColorMode);
+  var isCookie = type === "cookie";
+  var cookieScript = "(function(){try{var a=function(o){var l=\"(prefers-color-scheme: dark)\",v=window.matchMedia(l).matches?\"dark\":\"light\",e=o===\"system\"?v:o,d=document.documentElement,m=document.body,i=\"chakra-ui-light\",n=\"chakra-ui-dark\",s=e===\"dark\";return m.classList.add(s?n:i),m.classList.remove(s?i:n),d.style.colorScheme=e,d.dataset.theme=e,e},u=a,h=\"" + init + "\",r=\"" + key + "\",t=document.cookie.match(new RegExp(\"(^| )\".concat(r,\"=([^;]+)\"))),c=t?t[2]:null;c?a(c):document.cookie=\"\".concat(r,\"=\").concat(a(h),\"; max-age=31536000; path=/\")}catch(a){}})();\n  ";
+  var localStorageScript = "(function(){try{var a=function(c){var v=\"(prefers-color-scheme: dark)\",h=window.matchMedia(v).matches?\"dark\":\"light\",r=c===\"system\"?h:c,o=document.documentElement,s=document.body,l=\"chakra-ui-light\",d=\"chakra-ui-dark\",i=r===\"dark\";return s.classList.add(i?d:l),s.classList.remove(i?l:d),o.style.colorScheme=r,o.dataset.theme=r,r},n=a,m=\"" + init + "\",e=\"" + key + "\",t=localStorage.getItem(e);t?a(t):localStorage.setItem(e,a(m))}catch(a){}})();\n  ";
+  var fn = isCookie ? cookieScript : localStorageScript;
+  return ("!" + fn).trim();
+}
+function ColorModeScript(props) {
+  if (props === void 0) {
+    props = {};
+  }
+
   return /*#__PURE__*/React__namespace.createElement("script", {
-    nonce: props.nonce,
+    id: "chakra-script",
     dangerouslySetInnerHTML: {
-      __html: html
+      __html: getScriptSrc(props)
     }
   });
-};
+}
 
 exports.ColorModeContext = ColorModeContext;
 exports.ColorModeProvider = ColorModeProvider;
 exports.ColorModeScript = ColorModeScript;
 exports.DarkMode = DarkMode;
 exports.LightMode = LightMode;
+exports.STORAGE_KEY = STORAGE_KEY;
 exports.cookieStorageManager = cookieStorageManager;
+exports.cookieStorageManagerSSR = cookieStorageManagerSSR;
+exports.createCookieStorageManager = createCookieStorageManager;
+exports.createLocalStorageManager = createLocalStorageManager;
+exports.getScriptSrc = getScriptSrc;
 exports.localStorageManager = localStorageManager;
-exports.setScript = setScript;
-exports.storageKey = storageKey;
 exports.useColorMode = useColorMode;
 exports.useColorModeValue = useColorModeValue;

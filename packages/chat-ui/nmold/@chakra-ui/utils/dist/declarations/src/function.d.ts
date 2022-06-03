@@ -1,4 +1,5 @@
 import { AnyFunction, FunctionArguments } from "./types";
+export declare type MaybeFunction<T, Args extends unknown[] = []> = T | ((...args: Args) => T);
 export declare function runIfFn<T, U>(valueOrFn: T | ((...fnArgs: U[]) => T), ...args: U[]): T;
 export declare function callAllHandlers<T extends (event: any) => void>(...fns: (T | undefined)[]): (event: FunctionArguments<T>[0]) => void;
 export declare function callAll<T extends AnyFunction>(...fns: (T | undefined)[]): (arg: FunctionArguments<T>[0]) => void;

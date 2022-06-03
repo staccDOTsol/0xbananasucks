@@ -1,22 +1,14 @@
 export declare type ColorMode = "light" | "dark";
-/**
- * Function to add/remove class from `body` based on color mode
- */
-export declare function syncBodyClassName(isDark: boolean, document: Document): void;
-export declare const queries: {
-    light: string;
-    dark: string;
+declare type UtilOptions = {
+    preventTransition?: boolean;
 };
-export declare const lightQuery: string;
-export declare const darkQuery: string;
-export declare function getColorScheme(fallback?: ColorMode): "dark" | "light";
-/**
- * Adds system os color mode listener, and run the callback
- * once preference changes
- */
-export declare function addListener(fn: (cm: ColorMode, isListenerEvent: true) => unknown): () => void;
-export declare const root: {
-    get: () => "" | ColorMode;
-    set: (mode: ColorMode) => void;
+export declare function getColorModeUtils(options?: UtilOptions): {
+    setDataset: (value: ColorMode) => void;
+    setClassName(dark: boolean): void;
+    query(): MediaQueryList;
+    getSystemTheme(fallback?: ColorMode | undefined): "dark" | "light";
+    addListener(fn: (cm: ColorMode) => unknown): () => void;
+    preventTransition(): () => void;
 };
+export {};
 //# sourceMappingURL=color-mode.utils.d.ts.map

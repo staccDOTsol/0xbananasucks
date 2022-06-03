@@ -1,5 +1,5 @@
-/// <reference types="react" />
-declare type ReactRef<T> = React.Ref<T> | React.RefObject<T> | React.MutableRefObject<T>;
+import * as React from "react";
+export declare type ReactRef<T> = React.Ref<T> | React.RefObject<T> | React.MutableRefObject<T>;
 /**
  * Assigns a value to a ref function or object
  *
@@ -15,5 +15,4 @@ export declare function assignRef<T = any>(ref: ReactRef<T> | undefined, value: 
  * @param refs refs to assign to value to
  */
 export declare function mergeRefs<T>(...refs: (ReactRef<T> | undefined)[]): (node: T | null) => void;
-export {};
 //# sourceMappingURL=refs.d.ts.map

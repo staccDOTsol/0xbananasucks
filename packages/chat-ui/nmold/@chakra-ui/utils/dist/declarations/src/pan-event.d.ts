@@ -55,7 +55,7 @@ export interface PanSessionHandlers {
      */
     onMove: PanEventHandler;
     /**
-     * Callback fired when the current pan session has end.
+     * Callback fired when the current pan session has ended.
      * This is typically called once `pointerup` event is fired.
      */
     onEnd: PanEventHandler;

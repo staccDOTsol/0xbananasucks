@@ -5,12 +5,12 @@ export declare function pick<T extends Dict, K extends keyof T>(object: T, keys:
 export declare function split<T extends Dict, K extends keyof T>(object: T, keys: K[]): [{ [P in K]: T[P]; }, Omit<T, K>];
 /**
  * Get value from a deeply nested object using a string path.
- * Memoizes the value.
+ * Memorizes the value.
  * @param obj - the object
  * @param path - the string path
- * @param def  - the fallback value
+ * @param fallback  - the fallback value
  */
-export declare function get(obj: object, path: string | number, fallback?: any, index?: number): any;
+export declare function get(obj: Record<string, any>, path: string | number, fallback?: any, index?: number): any;
 declare type Get = (obj: Readonly<object>, path: string | number, fallback?: any, index?: number) => any;
 export declare const memoize: (fn: Get) => Get;
 export declare const memoizedGet: Get;
@@ -33,7 +33,7 @@ export declare function objectFilter<T extends Dict>(object: T, fn: FilterFn<T>)
 export declare const filterUndefined: (object: Dict) => Dict<any>;
 export declare const objectKeys: <T extends Dict<any>>(obj: T) => (keyof T)[];
 /**
- * Object.entries polyfill for Nodev10 compatibility
+ * Object.entries polyfill for Node v10 compatibility
  */
 export declare const fromEntries: <T extends unknown>(entries: [string, any][]) => T;
 /**

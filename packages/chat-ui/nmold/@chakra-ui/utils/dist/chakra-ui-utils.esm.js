@@ -76,7 +76,7 @@ function getNextIndex(currentIndex, length, step, loop) {
   return nextIndex;
 }
 /**
- * Get's the previous index based on the current index.
+ * Gets the previous index based on the current index.
  * Mostly used for keyboard navigation.
  *
  * @param index - the current index
@@ -256,10 +256,10 @@ function split(object, keys) {
 }
 /**
  * Get value from a deeply nested object using a string path.
- * Memoizes the value.
+ * Memorizes the value.
  * @param obj - the object
  * @param path - the string path
- * @param def  - the fallback value
+ * @param fallback  - the fallback value
  */
 
 function get(obj, path, fallback, index) {
@@ -337,7 +337,7 @@ var objectKeys = function objectKeys(obj) {
   return Object.keys(obj);
 };
 /**
- * Object.entries polyfill for Nodev10 compatibility
+ * Object.entries polyfill for Node v10 compatibility
  */
 
 var fromEntries = function fromEntries(entries) {
@@ -407,14 +407,12 @@ function subtract(value) {
   });
 }
 
-function queryString(min, max) {
-  var query = [];
-  if (min) query.push("@media screen and (min-width: " + px(min) + ")");
-  if (query.length > 0 && max) query.push("and");
-  if (max) query.push("@media screen and (max-width: " + px(max) + ")");
+function toMediaQueryString(min, max) {
+  var query = ["@media screen"];
+  if (min) query.push("and", "(min-width: " + px(min) + ")");
+  if (max) query.push("and", "(max-width: " + px(max) + ")");
   return query.join(" ");
 }
-
 function analyzeBreakpoints(breakpoints) {
   var _breakpoints$base;
 
@@ -432,12 +430,13 @@ function analyzeBreakpoints(breakpoints) {
 
     maxW = parseFloat(maxW) > 0 ? subtract(maxW) : undefined;
     return {
+      _minW: subtract(minW),
       breakpoint: breakpoint,
       minW: minW,
       maxW: maxW,
-      maxWQuery: queryString(null, maxW),
-      minWQuery: queryString(minW),
-      minMaxQuery: queryString(minW, maxW)
+      maxWQuery: toMediaQueryString(null, maxW),
+      minWQuery: toMediaQueryString(minW),
+      minMaxQuery: toMediaQueryString(minW, maxW)
     };
   });
 
@@ -458,7 +457,7 @@ function analyzeBreakpoints(breakpoints) {
     asArray: normalize(breakpoints),
     details: queries,
     media: [null].concat(normalized.map(function (minW) {
-      return queryString(minW);
+      return toMediaQueryString(minW);
     }).slice(1)),
     toArrayValue: function toArrayValue(test) {
       if (!isObject(test)) {
@@ -587,7 +586,7 @@ function isDisabled(element) {
   return Boolean(element.getAttribute("disabled")) === true || Boolean(element.getAttribute("aria-disabled")) === true;
 }
 function isInputElement(element) {
-  return isHTMLElement(element) && element.tagName.toLowerCase() === "input" && "select" in element;
+  return isHTMLElement(element) && element.localName === "input" && "select" in element;
 }
 function isActiveElement(element) {
   var doc = isHTMLElement(element) ? getOwnerDocument(element) : document;
@@ -905,8 +904,13 @@ function focus(element, options) {
       }
     }
 
-    if (isInputElement(element) && selectTextIfInput) {
-      element.select();
+    if (selectTextIfInput) {
+      if (isInputElement(element)) {
+        element.select();
+      } else if ("setSelectionRange" in element) {
+        var el = element;
+        el.setSelectionRange(el.value.length, el.value.length);
+      }
     }
   }
 
@@ -982,6 +986,35 @@ function restoreScrollPosition(scrollableElements) {
   }
 }
 
+function flatten(target, maxDepth) {
+  if (maxDepth === void 0) {
+    maxDepth = Infinity;
+  }
+
+  if (!isObject(target) && !Array.isArray(target) || !maxDepth) {
+    return target;
+  }
+
+  return Object.entries(target).reduce(function (result, _ref) {
+    var key = _ref[0],
+        value = _ref[1];
+
+    if (isObject(value) || isArray(value)) {
+      Object.entries(flatten(value, maxDepth - 1)).forEach(function (_ref2) {
+        var childKey = _ref2[0],
+            childValue = _ref2[1];
+        // e.g. gray.500
+        result[key + "." + childKey] = childValue;
+      });
+    } else {
+      // e.g. transparent
+      result[key] = value;
+    }
+
+    return result;
+  }, {});
+}
+
 /**
  * Determines whether the children of a disclosure widget
  * should be rendered or not, depending on the lazy behavior.
@@ -996,7 +1029,7 @@ function determineLazyBehavior(options) {
       _options$lazyBehavior = options.lazyBehavior,
       lazyBehavior = _options$lazyBehavior === void 0 ? "unmount" : _options$lazyBehavior; // if not lazy, always render the disclosure's content
 
-  if (!isLazy) return true; // if the diclosure is selected, render the disclosure's content
+  if (!isLazy) return true; // if the disclosure is selected, render the disclosure's content
 
   if (isSelected) return true; // if the disclosure was selected but not active, keep its content active
 
@@ -1120,7 +1153,7 @@ function _extends() {
  * License can be found here: https://github.com/framer/motion
  */
 function isMouseEvent(event) {
-  var win = getEventWindow(event); // PointerEvent inherits from MouseEvent so we can't use a straight instanceof check.
+  var win = getEventWindow(event); // PointerEvent inherits from MouseEvent, so we can't use a straight instanceof check.
 
   if (typeof win.PointerEvent !== "undefined" && event instanceof win.PointerEvent) {
     return !!(event.pointerType === "mouse");
@@ -1672,4 +1705,4 @@ function walkObject(target, predicate) {
   return inner(target);
 }
 
-export { PanSession, __DEV__, __TEST__, addDomEvent, addItem, addPointerEvent, analyzeBreakpoints, ariaAttr, arrayToObjectNotation, breakpoints, callAll, callAllHandlers, canUseDOM, chunk, clampValue, closest, compose, contains, countDecimalPlaces, cx, dataAttr, detectBrowser, detectDeviceType, detectOS, detectTouch, determineLazyBehavior, distance, error, extractEventInfo, filterUndefined, focus, focusNextTabbable, focusPreviousTabbable, fromEntries, get, getActiveElement, getAllFocusable, getAllTabbable, getCSSVar, getEventWindow, getFirstFocusable, getFirstItem, getFirstTabbableIn, getLastItem, getLastTabbableIn, getNextIndex, getNextItem, getNextItemFromSearch, getNextTabbable, getOwnerDocument, getOwnerWindow, getPointerEventName, getPrevIndex, getPrevItem, getPreviousTabbable, getRelatedTarget, getViewportPointFromEvent, getWithDefault, hasDisplayNone, hasFocusWithin, hasNegativeTabIndex, hasTabIndex, isActiveElement, isArray, isBrowser, isContentEditable, isCssVar, isCustomBreakpoint, isDefined, isDisabled, isElement, isEmpty, isEmptyArray, isEmptyObject, isFocusable, isFunction, isHTMLElement, isHidden, isInputElement, isInputEvent, isMouseEvent, isMultiTouchEvent, isNotEmptyObject, isNotNumber, isNull, isNumber, isNumeric, isObject, isRefObject, isResponsiveObjectLike, isRightClick, isString, isTabbable, isTouchEvent, isUndefined, mapResponsive, maxSafeInteger, memoize, memoizedGet, minSafeInteger, noop, normalizeEventKey, objectFilter, objectKeys, objectToArrayNotation, omit, once, percentToValue, pick, pipe, px, removeIndex, removeItem, roundValueToStep, runIfFn, split, toPrecision, valueToPercent, walkObject, warn, wrapPointerEventHandler };
+export { PanSession, __DEV__, __TEST__, addDomEvent, addItem, addPointerEvent, analyzeBreakpoints, ariaAttr, arrayToObjectNotation, breakpoints, callAll, callAllHandlers, canUseDOM, chunk, clampValue, closest, compose, contains, countDecimalPlaces, cx, dataAttr, detectBrowser, detectDeviceType, detectOS, detectTouch, determineLazyBehavior, distance, error, extractEventInfo, filterUndefined, flatten, focus, focusNextTabbable, focusPreviousTabbable, fromEntries, get, getActiveElement, getAllFocusable, getAllTabbable, getCSSVar, getEventWindow, getFirstFocusable, getFirstItem, getFirstTabbableIn, getLastItem, getLastTabbableIn, getNextIndex, getNextItem, getNextItemFromSearch, getNextTabbable, getOwnerDocument, getOwnerWindow, getPointerEventName, getPrevIndex, getPrevItem, getPreviousTabbable, getRelatedTarget, getViewportPointFromEvent, getWithDefault, hasDisplayNone, hasFocusWithin, hasNegativeTabIndex, hasTabIndex, isActiveElement, isArray, isBrowser, isContentEditable, isCssVar, isCustomBreakpoint, isDefined, isDisabled, isElement, isEmpty, isEmptyArray, isEmptyObject, isFocusable, isFunction, isHTMLElement, isHidden, isInputElement, isInputEvent, isMouseEvent, isMultiTouchEvent, isNotEmptyObject, isNotNumber, isNull, isNumber, isNumeric, isObject, isRefObject, isResponsiveObjectLike, isRightClick, isString, isTabbable, isTouchEvent, isUndefined, mapResponsive, maxSafeInteger, memoize, memoizedGet, minSafeInteger, noop, normalizeEventKey, objectFilter, objectKeys, objectToArrayNotation, omit, once, percentToValue, pick, pipe, px, removeIndex, removeItem, roundValueToStep, runIfFn, split, toMediaQueryString, toPrecision, valueToPercent, walkObject, warn, wrapPointerEventHandler };

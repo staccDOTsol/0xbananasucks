@@ -5,7 +5,6 @@ export * from "./use-const";
 export * from "./use-controllable";
 export * from "./use-dimensions";
 export * from "./use-disclosure";
-export * from "./use-event-callback";
 export * from "./use-event-listener";
 export * from "./use-event-listener-map";
 export * from "./use-focus-effect";
@@ -28,4 +27,5 @@ export * from "./use-timeout";
 export * from "./use-unmount-effect";
 export * from "./use-update-effect";
 export * from "./use-why-update";
+export * from "./use-animation-state";
 //# sourceMappingURL=index.d.ts.map
