@@ -17,8 +17,8 @@
     "dev": "NODE_OPTIONS='--inspect' next dev",
     "watch": "tsc --watch --project tsconfig-build.json",
     "build-lib": "tsc --project tsconfig-build.json",
-    "build": "yarn next build && yarn next export",
-    "start": "yarn serve -d out",
+    "build": "echo haha",
+    "start": "yarn dev",
     "lint": "next lint",
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
     "precommit": "git-format-staged -f 'prettier --ignore-unknown --stdin --stdin-filepath \"{}\"' ."
