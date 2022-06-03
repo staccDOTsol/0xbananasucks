@@ -24,8 +24,9 @@
     "precommit": "git-format-staged -f 'prettier --ignore-unknown --stdin --stdin-filepath \"{}\"' ."
   },
   "dependencies": {
+    "@chakra-ui/color-mode": "^2.0.3",
     "@chakra-ui/icons": "^1.1.7",
-    "@chakra-ui/react": "^1.8.1",
+    "@chakra-ui/react": "^1.7.2",
     "@giphy/js-fetch-api": "^4.2.0",
     "@giphy/react-components": "^5.8.0",
     "@hookform/resolvers": "^2.8.8",
@@ -33,7 +34,8 @@
     "@orca-so/sdk": "^1.2.24",
     "@shadow-drive/sdk": "^2.0.3",
     "@solana/buffer-layout": "^4.0.0",
-    "@solana/wallet-adapter-react": "^0.15.4",
+    "@solana/wallet-adapter-base": "^0.9.5",
+    "@solana/wallet-adapter-react": "^0.15.5",
     "@solana/wallet-adapter-react-ui": "^0.9.5",
     "@solana/wallet-adapter-wallets": "^0.16.1",
     "@solana/web3.js": "^1.43.4",
